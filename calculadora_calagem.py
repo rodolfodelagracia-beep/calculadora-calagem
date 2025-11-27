@@ -1,16 +1,32 @@
 import streamlit as st
+import os
 
 # Configuração da Página
 st.set_page_config(page_title="Ferramentas Agronômicas", page_icon="🚜")
 
-# --- MENU LATERAL ---
-st.sidebar.title("Navegação")
-opcao = st.sidebar.radio(
-    "Escolha a Ferramenta:",
-    ("🪨 Calagem & Adubação", "🚜 Calibração de Pulverizador")
-)
+# --- BARRA LATERAL (LOGO E MENU) ---
+with st.sidebar:
+    # Tenta mostrar o logo se ele existir no GitHub
+    if os.path.exists("logo.png"):
+        st.image("logo.png", width=150)
+    elif os.path.exists("logo.jpg"):
+        st.image("logo.jpg", width=150)
+    else:
+        # Se não tiver logo ainda, mostra um emoji gigante
+        st.markdown("# 🚜")
 
-st.sidebar.info("Desenvolvido para auxílio no campo.")
+    st.title("Menu")
+    opcao = st.radio(
+        "Escolha a Ferramenta:",
+        ("🪨 Calagem & Adubação", "🚜 Calibração de Pulverizador")
+    )
+    
+    st.markdown("---") # Linha divisória
+    
+    # SUA ASSINATURA
+    st.caption("Desenvolvido por:")
+    st.markdown("**Eng. Agr. Rodolfo Degaspari Delagracia**")
+    st.caption("© 2025")
 
 # ==================================================
 # FERRAMENTA 1: CALAGEM & ADUBAÇÃO
@@ -36,28 +52,19 @@ if opcao == "🪨 Calagem & Adubação":
         v_alvo = st.number_input("Saturação por Bases Desejada (V% Alvo)", value=70.0, step=1.0)
         prnt = st.number_input("PRNT do Calcário (%)", value=80.0, step=1.0)
 
-    # Botão de Calcular
     if st.button("Calcular Necessidades", type="primary"):
-        # Cálculos Intermediários
-        sb = k + ca + mg  # Soma de Bases
-        ctc = sb + hal    # CTC
+        sb = k + ca + mg
+        ctc = sb + hal
         
         if ctc > 0:
             v_atual = (sb / ctc) * 100
         else:
             v_atual = 0
 
-        # Cálculo da Necessidade de Calagem (NC)
-        # Fórmula: NC = (V2 - V1) * CTC / PRNT
         nc = ((v_alvo - v_atual) * ctc) / prnt
-
-        # Se der negativo, não precisa calagem
-        if nc < 0:
-            nc = 0
+        if nc < 0: nc = 0
 
         st.divider()
-        
-        # Exibição dos Resultados
         st.subheader("📊 Resultados da Análise")
         c1, c2, c3 = st.columns(3)
         c1.metric("Soma de Bases (SB)", f"{sb:.2f} cmol/dm³")
@@ -82,14 +89,13 @@ elif opcao == "🚜 Calibração de Pulverizador":
 
     with col_config:
         st.subheader("⚙️ Equipamento")
-        vazao = st.number_input("Vazão da Ponta (L/min)", value=0.80, step=0.05, format="%.3f", help="Vazão de um único bico")
+        vazao = st.number_input("Vazão da Ponta (L/min)", value=0.80, step=0.05, format="%.3f")
         espacamento = st.number_input("Espaçamento entre Bicos (cm)", value=50.0, step=5.0)
         tanque = st.number_input("Capacidade do Tanque (Litros)", value=600, step=100)
 
     with col_vel:
         st.subheader("⏱️ Velocidade")
         metodo_vel = st.radio("Como definir a velocidade?", ("Selecionar no Painel", "Cronometrar no Campo"))
-
         velocidade_final = 0.0
 
         if metodo_vel == "Selecionar no Painel":
@@ -101,40 +107,24 @@ elif opcao == "🚜 Calibração de Pulverizador":
                 velocidade_ms = distancia / tempo
                 velocidade_final = velocidade_ms * 3.6
                 st.success(f"Velocidade Calculada: **{velocidade_final:.1f} km/h**")
-            else:
-                st.error("O tempo deve ser maior que zero.")
 
     st.divider()
 
-    # Cálculos Finais
     if velocidade_final > 0 and espacamento > 0:
-        # Fórmula: L/ha = (L/min * 60000) / (km/h * cm)
         volume_calda = (vazao * 60000) / (velocidade_final * espacamento)
-        
-        # Autonomia
-        if volume_calda > 0:
-            autonomia = tanque / volume_calda
-        else:
-            autonomia = 0
+        autonomia = tanque / volume_calda if volume_calda > 0 else 0
 
         st.subheader("💧 Resultados")
-        
         col_res1, col_res2 = st.columns(2)
         
         with col_res1:
             st.metric("Volume de Calda", f"{volume_calda:.1f} L/ha")
-            
-            # Lógica de Cores
-            if volume_calda < 100:
-                st.warning("⚠️ Baixo Volume (Atenção à cobertura)")
-            elif volume_calda <= 250:
-                st.success("✅ Volume Ideal")
-            else:
-                st.error("🚫 Alto Volume (Risco de escorrimento)")
+            if volume_calda < 100: st.warning("⚠️ Baixo Volume")
+            elif volume_calda <= 250: st.success("✅ Volume Ideal")
+            else: st.error("🚫 Alto Volume")
         
         with col_res2:
-            st.metric("Autonomia do Tanque", f"{autonomia:.1f} ha", help=f"Área coberta com {tanque} Litros")
-            st.caption(f"Com um tanque de {tanque}L")
-
+            st.metric("Autonomia do Tanque", f"{autonomia:.1f} ha")
+            st.caption(f"Com tanque de {tanque}L")
     else:
-        st.warning("Insira os valores de velocidade e espaçamento para calcular.")
+        st.warning("Insira os parâmetros para calcular.")

@@ -8,43 +8,40 @@ st.set_page_config(
     layout="centered"
 )
 
-# --- ESTILO CSS (VISUAL MERCADO PAGO) ---
+# --- ESTILO CSS FORÇADO (AGORA VAI!) ---
 st.markdown("""
 <style>
-    /* 1. Fundo Geral do Site (Cinza Suave) */
+    /* 1. Forçar Fundo Cinza */
     .stApp {
-        background-color: #f0f2f6;
+        background-color: #f0f2f6 !important;
     }
     
-    /* 2. Estilo dos Cards (Caixas Brancas com Sombra) */
+    /* 2. Forçar Cartões Brancos (Com !important para não falhar) */
     [data-testid="stVerticalBlockBorderWrapper"] {
-        background-color: white;
-        border-radius: 12px;     /* Bordas arredondadas */
-        padding: 25px;           /* Espaço interno */
-        box-shadow: 0 4px 10px rgba(0,0,0,0.08); /* Sombra suave */
-        border: 1px solid #e0e0e0; /* Borda bem fininha */
+        background-color: #ffffff !important;
+        border-radius: 15px !important;
+        padding: 20px !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+        border: 1px solid #e0e0e0 !important;
     }
 
-    /* 3. Botões Verdes (Estilo App) */
+    /* 3. Forçar cor do texto para Escuro (Caso o celular esteja em modo noturno) */
+    p, .stMarkdown, h1, h2, h3, .stMetricLabel {
+        color: #1E1E1E !important;
+    }
+
+    /* 4. Botões Verdes */
     .stButton>button {
-        background-color: #2e7d32;
-        color: white;
-        border-radius: 8px;
-        font-weight: bold;
-        border: none;
-    }
-    .stButton>button:hover {
-        background-color: #1b5e20;
-    }
-
-    /* 4. Títulos em Verde */
-    h1, h2, h3 {
-        color: #2e7d32;
+        background-color: #2e7d32 !important;
+        color: white !important;
+        border-radius: 8px !important;
+        border: none !important;
+        font-weight: bold !important;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# --- BARRA LATERAL (LOGO E MENU) ---
+# --- BARRA LATERAL ---
 with st.sidebar:
     if os.path.exists("logo.png"):
         st.image("logo.png", width=150)
@@ -65,31 +62,30 @@ with st.sidebar:
     st.caption("© 2025")
 
 # ==================================================
-# FERRAMENTA 1: CALAGEM & ADUBAÇÃO
+# FERRAMENTA 1: CALAGEM
 # ==================================================
 if opcao == "🪨 Calagem & Adubação":
-    # CARD PRINCIPAL
+    # Este container com border=True VAI VIRAR UM CARD BRANCO
     with st.container(border=True):
-        st.title("🪨 Calculadora VERSÃO NOVA 2.0")
+        st.title("🪨 Calculadora de Calagem")
         st.markdown("Método de **Saturação por Bases**.")
         st.divider()
 
         st.header("1. Dados da Análise de Solo")
         
         col1, col2 = st.columns(2)
-        
         with col1:
             st.subheader("Bases e Acidez")
-            k = st.number_input("Potássio (K) [cmol/dm³]", min_value=0.0, format="%.2f")
-            ca = st.number_input("Cálcio (Ca) [cmol/dm³]", min_value=0.0, format="%.2f")
-            mg = st.number_input("Magnésio (Mg) [cmol/dm³]", min_value=0.0, format="%.2f")
-            hal = st.number_input("H+Al (Acidez Potencial) [cmol/dm³]", min_value=0.0, format="%.2f")
+            k = st.number_input("Potássio (K)", min_value=0.0, format="%.2f")
+            ca = st.number_input("Cálcio (Ca)", min_value=0.0, format="%.2f")
+            mg = st.number_input("Magnésio (Mg)", min_value=0.0, format="%.2f")
+            hal = st.number_input("H+Al (Acidez)", min_value=0.0, format="%.2f")
 
         with col2:
-            st.subheader("Outros Parâmetros")
-            p = st.number_input("Fósforo (P) [mg/dm³]", min_value=0.0, format="%.2f")
-            v_alvo = st.number_input("Saturação Desejada (V%)", value=70.0, step=1.0)
-            prnt = st.number_input("PRNT do Calcário (%)", value=80.0, step=1.0)
+            st.subheader("Outros")
+            p = st.number_input("Fósforo (P)", min_value=0.0, format="%.2f")
+            v_alvo = st.number_input("V% Desejada", value=70.0, step=1.0)
+            prnt = st.number_input("PRNT (%)", value=80.0, step=1.0)
 
         st.write("") 
         if st.button("Calcular Necessidades", type="primary"):
@@ -99,79 +95,66 @@ if opcao == "🪨 Calagem & Adubação":
             nc = ((v_alvo - v_atual) * ctc) / prnt
             if nc < 0: nc = 0
 
-            # CARD DE RESULTADOS
             st.markdown("---")
             st.subheader("📊 Resultados")
             
-            # Aqui criamos outro card para os resultados
+            # Outro card branco para o resultado
             with st.container(border=True):
                 c1, c2, c3 = st.columns(3)
-                c1.metric("Soma de Bases (SB)", f"{sb:.2f}")
-                c2.metric("CTC (T)", f"{ctc:.2f}")
-                c3.metric("V% Atual", f"{v_atual:.1f}%", delta=f"{v_atual - v_alvo:.1f}%")
+                c1.metric("Soma de Bases", f"{sb:.2f}")
+                c2.metric("CTC", f"{ctc:.2f}")
+                c3.metric("V% Atual", f"{v_atual:.1f}%")
 
             st.write("")
-            st.subheader("Recomendação")
             if nc > 0:
-                st.success(f"Necessidade de Calagem: **{nc:.2f} ton/ha**")
-                st.info(f"Usando Calcário PRNT {prnt}%.")
+                st.success(f"Necessidade: **{nc:.2f} ton/ha**")
+                st.info(f"Calcário PRNT {prnt}%")
             else:
-                st.success("✅ Solo já corrigido! Não precisa calagem.")
+                st.success("✅ Solo corrigido!")
 
 # ==================================================
 # FERRAMENTA 2: PULVERIZADOR
 # ==================================================
 elif opcao == "🚜 Calibração de Pulverizador":
-    # CARD PRINCIPAL
     with st.container(border=True):
-        st.title("🚜 Calibração de Pulverizador")
-        st.markdown("Apoio para regulagem de taxa de aplicação.")
+        st.title("🚜 Pulverizador")
+        st.markdown("Apoio para regulagem.")
         st.divider()
 
         col_config, col_vel = st.columns(2)
-
         with col_config:
             st.subheader("⚙️ Equipamento")
-            vazao = st.number_input("Vazão da Ponta (L/min)", value=0.80, step=0.05, format="%.3f")
-            espacamento = st.number_input("Espaçamento (cm)", value=50.0, step=5.0)
-            tanque = st.number_input("Capacidade Tanque (L)", value=600, step=100)
+            vazao = st.number_input("Vazão (L/min)", value=0.80, format="%.3f")
+            espacamento = st.number_input("Espaçamento (cm)", value=50.0)
+            tanque = st.number_input("Tanque (L)", value=600)
 
         with col_vel:
             st.subheader("⏱️ Velocidade")
-            metodo_vel = st.radio("Método:", ("Painel do Trator", "Cronometrar no Campo"))
-            velocidade_final = 0.0
+            metodo = st.radio("Método:", ("Painel", "Cronômetro"))
+            vel_final = 0.0
 
-            if metodo_vel == "Painel do Trator":
-                velocidade_final = st.slider("Km/h", 2.0, 25.0, 5.0, 0.1)
+            if metodo == "Painel":
+                vel_final = st.slider("Km/h", 2.0, 25.0, 5.0)
             else:
-                distancia = st.number_input("Distância (m)", value=50.0)
+                dist = st.number_input("Distância (m)", value=50.0)
                 tempo = st.number_input("Tempo (s)", value=30.0)
                 if tempo > 0:
-                    velocidade_ms = distancia / tempo
-                    velocidade_final = velocidade_ms * 3.6
-                    st.success(f"Velocidade: **{velocidade_final:.1f} km/h**")
+                    vel_final = (dist / tempo) * 3.6
+                    st.success(f"Velocidade: **{vel_final:.1f} km/h**")
 
         st.write("")
-        if velocidade_final > 0 and espacamento > 0:
-            volume_calda = (vazao * 60000) / (velocidade_final * espacamento)
-            autonomia = tanque / volume_calda if volume_calda > 0 else 0
+        if vel_final > 0 and espacamento > 0:
+            vol = (vazao * 60000) / (vel_final * espacamento)
+            autonomia = tanque / vol if vol > 0 else 0
 
-            # CARD DE RESULTADOS
             st.markdown("---")
-            st.subheader("💧 Resultados")
-            
             with st.container(border=True):
-                col_res1, col_res2 = st.columns(2)
+                c1, c2 = st.columns(2)
+                c1.metric("Volume", f"{vol:.1f} L/ha")
+                c2.metric("Autonomia", f"{autonomia:.1f} ha")
                 
-                with col_res1:
-                    st.metric("Volume de Calda", f"{volume_calda:.1f} L/ha")
-                    if volume_calda < 100: st.warning("⚠️ Baixo Volume")
-                    elif volume_calda <= 250: st.success("✅ Volume Ideal")
-                    else: st.error("🚫 Alto Volume")
-                
-                with col_res2:
-                    st.metric("Autonomia", f"{autonomia:.1f} ha")
-                    st.caption(f"Tanque de {tanque}L")
+                if vol < 100: st.warning("⚠️ Baixo")
+                elif vol <= 250: st.success("✅ Ideal")
+                else: st.error("🚫 Alto")
         else:
-            st.info("Ajuste os parâmetros para calcular.")
-
+            st.info("Insira os dados para calcular.")

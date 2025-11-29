@@ -70,7 +70,7 @@ with st.sidebar:
 if opcao == "🪨 Calagem & Adubação":
     # CARD PRINCIPAL
     with st.container(border=True):
-        st.title("🪨 Calculadora de Calagem")
+        st.title("🪨 Calculadora VERSÃO NOVA 2.0")
         st.markdown("Método de **Saturação por Bases**.")
         st.divider()
 
@@ -174,3 +174,4 @@ elif opcao == "🚜 Calibração de Pulverizador":
                     st.caption(f"Tanque de {tanque}L")
         else:
             st.info("Ajuste os parâmetros para calcular.")
+

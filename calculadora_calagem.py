@@ -1,6 +1,6 @@
 import streamlit as st
 import os
-
+st.error("🚨 ESTOU NA VERSÃO NOVA COM FUNDO CINZA! 🚨")
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(
     page_title="Ferramentas Agronômicas",
@@ -172,3 +172,4 @@ elif opcao == "🚜 Calibração de Pulverizador":
                 st.caption(f"Tanque de {tanque}L")
         else:
             st.info("Ajuste os parâmetros para calcular.")
+

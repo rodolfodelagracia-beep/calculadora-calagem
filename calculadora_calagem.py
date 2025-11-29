@@ -8,14 +8,37 @@ st.set_page_config(
     layout="centered"
 )
 
-# --- ESTILO CSS (Para o Fundo Cinza) ---
+# --- ESTILO CSS (VISUAL MERCADO PAGO) ---
 st.markdown("""
 <style>
+    /* 1. Fundo Geral do Site (Cinza Suave) */
     .stApp {
         background-color: #f0f2f6;
     }
-    /* Ajuste para o título ficar bonito */
-    h1 {
+    
+    /* 2. Estilo dos Cards (Caixas Brancas com Sombra) */
+    [data-testid="stVerticalBlockBorderWrapper"] {
+        background-color: white;
+        border-radius: 12px;     /* Bordas arredondadas */
+        padding: 25px;           /* Espaço interno */
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08); /* Sombra suave */
+        border: 1px solid #e0e0e0; /* Borda bem fininha */
+    }
+
+    /* 3. Botões Verdes (Estilo App) */
+    .stButton>button {
+        background-color: #2e7d32;
+        color: white;
+        border-radius: 8px;
+        font-weight: bold;
+        border: none;
+    }
+    .stButton>button:hover {
+        background-color: #1b5e20;
+    }
+
+    /* 4. Títulos em Verde */
+    h1, h2, h3 {
         color: #2e7d32;
     }
 </style>
@@ -80,12 +103,14 @@ if opcao == "🪨 Calagem & Adubação":
             st.markdown("---")
             st.subheader("📊 Resultados")
             
+            # Aqui criamos outro card para os resultados
             with st.container(border=True):
                 c1, c2, c3 = st.columns(3)
                 c1.metric("Soma de Bases (SB)", f"{sb:.2f}")
                 c2.metric("CTC (T)", f"{ctc:.2f}")
                 c3.metric("V% Atual", f"{v_atual:.1f}%", delta=f"{v_atual - v_alvo:.1f}%")
 
+            st.write("")
             st.subheader("Recomendação")
             if nc > 0:
                 st.success(f"Necessidade de Calagem: **{nc:.2f} ton/ha**")
